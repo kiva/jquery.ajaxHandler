@@ -1,0 +1,34 @@
+{
+	"name": "backbone.ajaxApi",
+	"version": "0.1.0",
+	"description": "Post-processing for jquery.ajax requests",
+	"main": "index.js",
+	"scripts": {
+		"test": "grunt test --verbose",
+		"prepublish": "bower install  && git ls-files -z dist/ | xargs -0 git update-index --assume-unchanged"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/kiva/backbone.ajaxApi.git"
+	},
+	"keywords": [
+		"kiva",
+		"ajax",
+		"rest",
+		"restful",
+		"api"
+	],
+	"author": "uglymunky",
+	"license": "BSD",
+	"readmeFilename": "readme.md",
+	"devDependencies": {
+		"buster": "~0.7.8",
+		"buster-coverage": "~0.1.0",
+		"coveralls": "~2.6.1",
+		"grunt": "~0.4.1",
+		"grunt-buster": "~0.3.1",
+		"grunt-contrib-jshint": "~0.7.2",
+		"grunt-contrib-uglify": "~0.2.7",
+		"grunt-rigger": "~0.5.0"
+	}
+}
