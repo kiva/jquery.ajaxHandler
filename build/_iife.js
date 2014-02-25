@@ -1,7 +1,7 @@
-(function (_, Backbone) {
+(function ($) {
 	'use strict';
 
 
-	//= ../src/backbone.ajaxApi.js
+	//= ../src/jquery.ajaxHandler.js
 
-}(_, Backbone));
+}(jQuery));

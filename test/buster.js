@@ -10,7 +10,7 @@ config.development = {
 		, 'bower_components/underscore/underscore.js'
 		, 'bower_components/backbone/backbone.js'
 	]
-	, sources: ['src/backbone.ajaxApi.js']
+	, sources: ['src/jquery.ajaxHandler.js']
 	, specs: ['test/spec/**/*.js']
 	, extensions: [ require('buster-coverage') ]
 	, 'buster-coverage': {

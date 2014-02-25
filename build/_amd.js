@@ -1,8 +1,8 @@
-define(['underscore', 'backbone'], function (_, Backbone) {
+define(['jquery'], function ($) {
 	'use strict';
 
 
-	//= ../src/backbone.ajaxApi.js
+	//= ../src/jquery.ajaxHandler.js
 
-	return Backbone;
+	return $;
 });
