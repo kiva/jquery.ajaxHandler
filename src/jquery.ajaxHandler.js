@@ -1,3 +1,6 @@
+'use strict';
+
+
 $.ajaxHandler = {
 
 	defaults: {
@@ -53,7 +56,7 @@ $.ajaxHandler = {
 
 		if (ajaxHandlerOptions.isAjaxHandlerEnabled) {
 			if (optionsIndex == 1) {
-				options.url = 	args[0];
+				options.url = args[0];
 			}
 
 			return $.ajaxHandler.handleAjaxRequest.call(this, options);
@@ -107,7 +110,7 @@ $.ajaxHandler = {
 	, ajax: function (options) {
 
 		if (options.beforeSend) {
-			options.ajaxHandlerOptions.origBeforeSend = options.beforeSend
+			options.ajaxHandlerOptions.origBeforeSend = options.beforeSend;
 		}
 		options.beforeSend = $.ajaxHandler.onBeforeSend;
 

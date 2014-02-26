@@ -7,8 +7,6 @@ config.development = {
 	, rootPath: '../'
 	, deps: [
 		'bower_components/jquery/jquery.js'
-		, 'bower_components/underscore/underscore.js'
-		, 'bower_components/backbone/backbone.js'
 	]
 	, sources: ['src/jquery.ajaxHandler.js']
 	, specs: ['test/spec/**/*.js']
