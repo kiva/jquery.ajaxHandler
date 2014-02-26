@@ -7,28 +7,21 @@ Post-processing for jquery.ajax requests
 ## Basic Use
 
 ```
-// Configure our custom Backone.ajax wrapper
+// Configure jquery.ajaxHandler
+$.ajaxHandler.install({
+	isAjaxHandlerEnabled: Boolean
+	, url: Function
+	, requestHeaders: Object
+	, on401: Function
+	, onFail: Function
+});
 
-var options = {
-	url: function (options) {
-		if (envUtils.hasFullCorsSupport()) {
-			return options.url;
-		}
 
-		return fallbackAPIUrl(url);
+// Set per request options.  Will override any existing options.
+$.ajax(url, {
+	ajaxHandlerOptions: {
+		isAjaxHandlerEnabled: true
 	}
-	, requestHeaders: {
-		Authorization: function (options) {
-			return  generateOauthHeader(options);
-		}
-	}
-	, on401: function (deferred) {
-		var ajaxArgs = this;
-
-		doStuff();
-	}
-};
-
-new jquery.ajaxHandler(options);
+});
 ```
 

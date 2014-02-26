@@ -4,21 +4,21 @@ define(function (require) {
 	'use strict';
 
 	var expect = buster.expect
-	, Backbone = require('backbone.ajaxApi');
+	, Backbone = require('jquery.ajaxHandler');
 
-	describe('backbone.ajaxApi', function () {
+	describe('jquery.ajaxHandler', function () {
 
 		it('has a settings object', function () {
-			expect(Backbone.ajaxApi._settings).toBeObject();
+			expect($.ajaxHandler._settings).toBeObject();
 		});
 
 
 		describe('.config', function () {
 			it('modifies the settings object and returns it', function () {
-				var result = Backbone.ajaxApi.config({blah: true});
+				var result = jquery.ajaxHandler.config({blah: true});
 
-				expect(Backbone.ajaxApi._settings).toMatch(result);
-				expect(Backbone.ajaxApi._settings).toMatch({
+				expect($.ajaxHandler._settings).toMatch(result);
+				expect($.ajaxHandler._settings).toMatch({
 					blah: true
 				});
 			});
@@ -26,13 +26,13 @@ define(function (require) {
 
 
 		describe('._reset', function () {
-			it('resets the Backbone object back to its pre Backbone.ajaxApi state', function () {
-				Backbone.ajaxApi.wrapAjax({why: 'peaches'});
-				Backbone.ajaxApi._reset();
+			it('resets the Backbone object back to its pre jquery.ajaxHandler state', function () {
+				$.ajaxHandler.wrapAjax({why: 'peaches'});
+				$.ajaxHandler._reset();
 
-				expect(Backbone.ajax).toBeDefined();
-				expect(Backbone.origAjax).not.toBeDefined();
-				expect(Backbone.ajaxApi._settings).toMatch({});
+				expect($.ajaxHandler.ajax).toBeDefined();
+				expect($.ajaxHandler.origAjax).not.toBeDefined();
+				expect($.ajaxHandler._settings).toMatch({});
 			});
 		});
 

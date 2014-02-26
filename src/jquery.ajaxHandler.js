@@ -1,33 +1,15 @@
-/**
- *
- * @param options
- * @constructor
- */
-$.AjaxHandler = function (options) {
-	$.AjaxHandler.config(options || {});
+$.ajaxHandler = {
 
-	$.origAjax = $.ajax;
-	$.ajax = this.ajaxWrapper;
-};
+	defaults: {
+		isAjaxHandlerEnabled: false
+	}
 
 
-$.AjaxHandler.defaults = {
-	isAjaxHandlerEnabled: false
-};
+	, install: function (options) {
+		$.ajaxHandler.config(options || {});
 
-
-$.AjaxHandler.prototype = {
-
-	/**
-	 *
-	 * @param {Object} options
-	 * @param {Object} options.requestHeaders
-	 * @param {Function} options.on401
-	 * @returns {Object}
-	 */
-	config: function (options) {
-		this._settings = $.extend($.ajaxHandler.defaults, options);
-		return this._settings;
+		$.ajaxHandler.origAjax = $.ajax;
+		$.ajax = $.ajaxHandler.ajaxWrapper;
 	}
 
 
@@ -36,10 +18,48 @@ $.AjaxHandler.prototype = {
 	 * (used by unit tests)
 	 */
 	, remove: function () {
-		$.ajax = $.ajaxHandler.origAjax;
-		$.ajaxHandler._settings = {};
+		$.ajax = this.origAjax;
+		this.options = {};
 
-		delete $.ajaxWrapper.origAjax;
+		delete this.origAjax;
+	}
+
+
+	/**
+	 *
+	 * @param {Object} options
+	 * @param {Object} options.requestHeaders
+	 * @param {Function} options.on401
+	 * @returns {Object}
+	 */
+	, config: function (options) {
+		$.ajaxHandler.options = $.extend({}, $.ajaxHandler.defaults, options);
+		return this.options;
+	}
+
+
+	/**
+	 *
+	 * @returns {Promise}
+	 */
+	, ajaxWrapper: function () {
+		var args = Array.prototype.slice.call(arguments)
+		, optionsIndex = typeof args[0] == 'string' ? 1 : 2
+		, options = args[optionsIndex] || {}
+		, ajaxHandlerOptions = options.ajaxHandlerOptions;
+
+		// Merge per-request options with the runtime options
+		ajaxHandlerOptions = $.extend({}, $.ajaxHandler.options, ajaxHandlerOptions);
+
+		if (ajaxHandlerOptions.isAjaxHandlerEnabled) {
+			if (optionsIndex == 1) {
+				options.url = 	args[0];
+			}
+
+			return $.ajaxHandler.handleAjaxRequest.call(this, options);
+		} else {
+			return $.ajax.apply(this, args);
+		}
 	}
 
 
@@ -49,7 +69,7 @@ $.AjaxHandler.prototype = {
 	 *
 	 * @returns {Promise}
 	 */
-	, ajaxWrapper: function () {
+	, handleAjaxRequest: function () {
 		var args = Array.prototype.slice.call(arguments)
 		, options = args[0]
 		, deferred = new $.Deferred()
@@ -68,8 +88,8 @@ $.AjaxHandler.prototype = {
 				// Add the error handler
 				this.error = errorHandler;
 
-				if (jqXhr.status == 401) {
-					$.ajaxHandler._settings.on401.call(this, deferred, jqXhr, statusText, error);
+				if (jqXhr.status == 401 && options.ajaxHandlerOptions.on401) {
+					options.ajaxHandlerOptions.on401.call(this, deferred, jqXhr, statusText, error);
 				} else {
 					$.ajaxHandler.onFail.call(this, deferred, jqXhr, statusText, error);
 				}
@@ -85,29 +105,13 @@ $.AjaxHandler.prototype = {
 	 * {Object} options
 	 */
 	, ajax: function (options) {
-		var settings = $.ajaxHandler._settings
-			, url = options.url
-			, prevBeforeSend = options.beforeSend;
 
-		if (options.isAjaxHandlerEnabled) {
-			options.beforeSend = function (request) {
-				if (typeof settings.url == 'function') {
-					options.url = settings.url.call(this, options);
-				}
-
-				// Add any custom request headers
-				_.each(settings.requestHeaders, function (header, name) {
-					request.setRequestHeader(name, typeof header == 'function' ? header.call(this, request, options) : header);
-				});
-
-				// Make sure to call any pre-existing .beforeSend() callbacks
-				if (typeof prevBeforeSend == 'function') {
-					prevBeforeSend.call(this, request, options);
-				}
-			};
+		if (options.beforeSend) {
+			options.ajaxHandlerOptions.origBeforeSend = options.beforeSend
 		}
+		options.beforeSend = $.ajaxHandler.onBeforeSend;
 
-		return $.ajax(url, options);
+		return $.ajaxHandler.origAjax(options.url, options);
 	}
 
 
@@ -124,10 +128,33 @@ $.AjaxHandler.prototype = {
 			this.error.call(this, jqXhr, statusText, error);
 		}
 
-		if (typeof $.ajaxHandler._settings.onFail == 'function') {
-			$.ajaxHandler._settings.onFail.call(this, deferred, jqXhr, statusText, error);
+		if (typeof $.ajaxHandler.options.onFail == 'function') {
+			$.ajaxHandler.options.onFail.call(this, deferred, jqXhr, statusText, error);
 		}
 
 		return deferred.reject(jqXhr, statusText, error);
+	}
+
+
+	/**
+	 *
+	 * @param jqXhr
+	 */
+	, onBeforeSend: function (jqXhr, options) {
+		var ajaxHandlerOptions = options.ajaxHandlerOptions;
+
+		if (typeof ajaxHandlerOptions.url == 'function') {
+			options.url = ajaxHandlerOptions.url.call(this, options);
+		}
+
+		// Add any custom request headers
+		_.each(ajaxHandlerOptions.requestHeaders, function (header, name) {
+			jqXhr.setRequestHeader(name, typeof header == 'function' ? header.call(this, jqXhr, options) : header);
+		});
+
+		// Make sure to call any pre-existing .beforeSend() callbacks
+		if (typeof ajaxHandlerOptions.origBeforeSend == 'function') {
+			ajaxHandlerOptions.origBeforeSend.call(this, jqXhr, options);
+		}
 	}
 };
