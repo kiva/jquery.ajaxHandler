@@ -148,7 +148,7 @@ $.ajaxHandler = {
 		}
 
 		// Add any custom request headers
-		_.each(ajaxHandlerOptions.requestHeaders, function (header, name) {
+		$.each(ajaxHandlerOptions.requestHeaders, function (name, header) {
 			jqXhr.setRequestHeader(name, typeof header == 'function' ? header.call(this, jqXhr, options) : header);
 		});
 
