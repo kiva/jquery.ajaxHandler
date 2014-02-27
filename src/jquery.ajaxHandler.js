@@ -21,10 +21,12 @@ $.ajaxHandler = {
 	 * (used by unit tests)
 	 */
 	, remove: function () {
-		$.ajax = $.ajaxHandler.origAjax;
+		if ($.ajaxHandler.origAjax) {
+			$.ajax = $.ajaxHandler.origAjax;
+			$.ajaxHandler.origAjax = undefined;
+		}
 
 		delete $.ajaxHandler.options;
-		$.ajaxHandler.origAjax = undefined;
 	}
 
 

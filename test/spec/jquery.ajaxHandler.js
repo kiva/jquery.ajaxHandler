@@ -5,7 +5,7 @@ describe('jquery.ajaxHandler', function () {
 
 	var expect = buster.expect;
 
-	after(function () {
+	before(function () {
 		$.ajaxHandler.remove();
 	});
 
@@ -84,11 +84,24 @@ describe('jquery.ajaxHandler', function () {
 
 
 	describe('.handleAjaxRequest()', function () {
-		it('calls calls $.ajaxHandler.ajax()', function () {
-			this.stub($.ajaxHandler, 'ajax');
-			$.ajaxHandler.handleAjaxRequest();
+		it('calls $.ajaxHandler.ajax()', function () {
+			$.ajaxHandler.install();
+			this.stub($.ajaxHandler, 'ajax').returns(new $.Deferred());
+
+			$.ajaxHandler.handleAjaxRequest({});
 
 			expect($.ajaxHandler.ajax).toHaveBeenCalled();
+		});
+
+
+		it('throws if an `options` object is not passed in)', function () {
+			$.ajaxHandler.install();
+
+			this.stub($.ajaxHandler, 'ajax');
+
+			expect(function () {
+				$.ajaxHandler.handleAjaxRequest();
+			}).toThrow();
 		});
 	});
 
