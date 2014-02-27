@@ -9,10 +9,10 @@ $.ajaxHandler = {
 
 
 	, install: function (options) {
-		$.ajaxHandler.config(options || {});
-
 		$.ajaxHandler.origAjax = $.ajax;
 		$.ajax = $.ajaxHandler.ajaxWrapper;
+
+		return $.ajaxHandler.config(options || {});
 	}
 
 
@@ -21,10 +21,10 @@ $.ajaxHandler = {
 	 * (used by unit tests)
 	 */
 	, remove: function () {
-		$.ajax = this.origAjax;
-		this.options = {};
+		$.ajax = $.ajaxHandler.origAjax;
 
-		delete this.origAjax;
+		delete $.ajaxHandler.options;
+		$.ajaxHandler.origAjax = undefined;
 	}
 
 

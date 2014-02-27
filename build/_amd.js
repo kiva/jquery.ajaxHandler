@@ -1,4 +1,4 @@
-define(['jquery'], function ($) {
+define(['jquery'], function ($, undefined) {
 
 	//= ../src/jquery.ajaxHandler.js
 
