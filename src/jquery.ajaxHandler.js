@@ -47,7 +47,7 @@ $.ajaxHandler = {
 	 */
 	, ajaxWrapper: function () {
 		var args = Array.prototype.slice.call(arguments)
-		, optionsIndex = typeof args[0] == 'string' ? 1 : 2
+		, optionsIndex = typeof args[0] == 'string' ? 1 : 0
 		, options = args[optionsIndex] || {}
 		, ajaxHandlerOptions = options.ajaxHandlerOptions;
 
@@ -59,9 +59,10 @@ $.ajaxHandler = {
 				options.url = args[0];
 			}
 
+			options.ajaxHandlerOptions = ajaxHandlerOptions;
 			return $.ajaxHandler.handleAjaxRequest.call(this, options);
 		} else {
-			return $.ajax.apply(this, args);
+			return $.ajaxHandler.origAjax.apply(this, args);
 		}
 	}
 
@@ -83,6 +84,11 @@ $.ajaxHandler = {
 
 		options.error = null;
 
+		// Save a reference to any existing `beforeSend` callback, we will want to call it later...
+		if (options.beforeSend) {
+			options.ajaxHandlerOptions.origBeforeSend = options.beforeSend;
+		}
+
 		$.ajaxHandler.ajax.apply(this, args)
 			.done(function (response, statusText, jqXhr) {
 				deferred.resolve(response, statusText, jqXhr);
@@ -103,18 +109,15 @@ $.ajaxHandler = {
 
 
 	/**
-	 * Wraps $.Ajax() with some headers and modifies the url
+	 * Calls the original $.ajax with some headers and modifies the url
 	 *
 	 * {Object} options
 	 */
 	, ajax: function (options) {
-
-		if (options.beforeSend) {
-			options.ajaxHandlerOptions.origBeforeSend = options.beforeSend;
-		}
+		// Install our own onBeforeSend handler
 		options.beforeSend = $.ajaxHandler.onBeforeSend;
 
-		return $.ajaxHandler.origAjax(options.url, options);
+		return $.ajaxHandler.origAjax(options);
 	}
 
 
@@ -151,9 +154,11 @@ $.ajaxHandler = {
 		}
 
 		// Add any custom request headers
-		$.each(ajaxHandlerOptions.requestHeaders, function (name, header) {
-			jqXhr.setRequestHeader(name, typeof header == 'function' ? header.call(this, jqXhr, options) : header);
-		});
+		if (ajaxHandlerOptions.requestHeaders) {
+			$.each(ajaxHandlerOptions.requestHeaders, function (name, header) {
+				jqXhr.setRequestHeader(name, typeof header == 'function' ? header.call(jqXhr, options) : header);
+			});
+		}
 
 		// Make sure to call any pre-existing .beforeSend() callbacks
 		if (typeof ajaxHandlerOptions.origBeforeSend == 'function') {
