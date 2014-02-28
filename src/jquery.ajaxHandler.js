@@ -149,10 +149,12 @@ $.ajaxHandler = {
 	 * @param jqXhr
 	 */
 	, onBeforeSend: function (jqXhr, options) {
-		var ajaxHandlerOptions = options.ajaxHandlerOptions;
+		var origUrl
+		, ajaxHandlerOptions = options.ajaxHandlerOptions;
 
-		if (typeof ajaxHandlerOptions.url == 'function') {
-			options.url = ajaxHandlerOptions.url.call(this, options);
+		if (typeof ajaxHandlerOptions.corsUrl == 'function') {
+			origUrl = options.url;
+			options.url = ajaxHandlerOptions.corsUrl.call(this, options);
 		}
 
 		// Add any custom request headers
@@ -160,6 +162,10 @@ $.ajaxHandler = {
 			$.each(ajaxHandlerOptions.requestHeaders, function (name, header) {
 				jqXhr.setRequestHeader(name, typeof header == 'function' ? header.call(jqXhr, options) : header);
 			});
+		}
+
+		if (origUrl) {
+			options.url = origUrl;
 		}
 
 		// Make sure to call any pre-existing .beforeSend() callbacks
