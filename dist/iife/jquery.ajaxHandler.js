@@ -29,10 +29,12 @@
 		 * (used by unit tests)
 		 */
 		, remove: function () {
-			$.ajax = $.ajaxHandler.origAjax;
+			if ($.ajaxHandler.origAjax) {
+				$.ajax = $.ajaxHandler.origAjax;
+				$.ajaxHandler.origAjax = undefined;
+			}
 	
 			delete $.ajaxHandler.options;
-			$.ajaxHandler.origAjax = undefined;
 		}
 	
 	
@@ -155,10 +157,12 @@
 		 * @param jqXhr
 		 */
 		, onBeforeSend: function (jqXhr, options) {
-			var ajaxHandlerOptions = options.ajaxHandlerOptions;
+			var origUrl
+			, ajaxHandlerOptions = options.ajaxHandlerOptions;
 	
-			if (typeof ajaxHandlerOptions.url == 'function') {
-				options.url = ajaxHandlerOptions.url.call(this, options);
+			if (typeof ajaxHandlerOptions.corsUrl == 'function') {
+				origUrl = options.url;
+				options.url = ajaxHandlerOptions.corsUrl.call(this, options);
 			}
 	
 			// Add any custom request headers
@@ -166,6 +170,10 @@
 				$.each(ajaxHandlerOptions.requestHeaders, function (name, header) {
 					jqXhr.setRequestHeader(name, typeof header == 'function' ? header.call(jqXhr, options) : header);
 				});
+			}
+	
+			if (origUrl) {
+				options.url = origUrl;
 			}
 	
 			// Make sure to call any pre-existing .beforeSend() callbacks
