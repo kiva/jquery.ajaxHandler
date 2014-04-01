@@ -94,7 +94,7 @@ describe('jquery.ajaxHandler', function () {
 		});
 
 
-		it('throws if an `options` object is not passed in)', function () {
+		it('throws if an `options` object is not passed in', function () {
 			$.ajaxHandler.install();
 
 			this.stub($.ajaxHandler, 'ajax');
@@ -103,6 +103,34 @@ describe('jquery.ajaxHandler', function () {
 				$.ajaxHandler.handleAjaxRequest();
 			}).toThrow();
 		});
-	});
 
+		// https://github.com/kiva/jquery.ajaxHandler/issues/1
+		it('responds with a jqXhr promise', function () {
+			var preInstallJqXhr, postInstallJqXhr
+			, server = sinon.fakeServer.create();
+
+			server.respondWith('Some response');
+
+			preInstallJqXhr = $.ajax();
+			server.respond();
+
+			$.ajaxHandler.install({isAjaxHandlerEnabled: true});
+
+			postInstallJqXhr = $.ajax();
+			server.respond();
+
+			// Compare the standard jqXhr object (preInstall) to the one returns by .handleAjaxRequest()
+			expect(postInstallJqXhr).toMatch(function (postInstallJqXhr) {
+				var isMatch = true;
+
+				$.each(preInstallJqXhr, function (key) {
+					if (!postInstallJqXhr[key]) {
+						isMatch = false;
+					}
+				});
+
+				return isMatch;
+			});
+		});
+	});
 });

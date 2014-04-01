@@ -76,7 +76,8 @@ $.ajaxHandler = {
 	 * @returns {Promise}
 	 */
 	, handleAjaxRequest: function () {
-		var args = Array.prototype.slice.call(arguments)
+		var jqXhr
+		, args = Array.prototype.slice.call(arguments)
 		, options = args[0]
 		, deferred = new $.Deferred()
 
@@ -91,7 +92,7 @@ $.ajaxHandler = {
 			options.ajaxHandlerOptions.origBeforeSend = options.beforeSend;
 		}
 
-		$.ajaxHandler.ajax.apply(this, args)
+		jqXhr = $.ajaxHandler.ajax.apply(this, args)
 			.done(function (response, statusText, jqXhr) {
 				deferred.resolve(response, statusText, jqXhr);
 			})
@@ -106,7 +107,7 @@ $.ajaxHandler = {
 				}
 			});
 
-		return deferred.promise();
+		return deferred.promise(jqXhr);
 	}
 
 
