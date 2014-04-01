@@ -1,5 +1,5 @@
 /*
-* jquery.ajaxHandler v0.1.0
+* jquery.ajaxHandler v0.1.1
 *
 * Copyright (c) 2014 Kiva Microfunds
 * Licensed under the MIT license.
@@ -84,7 +84,8 @@
 		 * @returns {Promise}
 		 */
 		, handleAjaxRequest: function () {
-			var args = Array.prototype.slice.call(arguments)
+			var jqXhr
+			, args = Array.prototype.slice.call(arguments)
 			, options = args[0]
 			, deferred = new $.Deferred()
 	
@@ -99,7 +100,7 @@
 				options.ajaxHandlerOptions.origBeforeSend = options.beforeSend;
 			}
 	
-			$.ajaxHandler.ajax.apply(this, args)
+			jqXhr = $.ajaxHandler.ajax.apply(this, args)
 				.done(function (response, statusText, jqXhr) {
 					deferred.resolve(response, statusText, jqXhr);
 				})
@@ -114,7 +115,7 @@
 					}
 				});
 	
-			return deferred.promise();
+			return deferred.promise(jqXhr);
 		}
 	
 	
