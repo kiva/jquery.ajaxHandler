@@ -133,4 +133,53 @@ describe('jquery.ajaxHandler', function () {
 			});
 		});
 	});
+
+
+	describe('.onBeforeSend()', function () {
+		it('sets request headers, as specified in the options.requestHeaders array', function () {
+			var fakeXhr = sinon.useFakeXMLHttpRequest()
+			, request;
+
+			fakeXhr.onCreate = function (xhr) {
+				request = xhr;
+			};
+
+			$.ajaxHandler.install({
+				isAjaxHandlerEnabled: true
+				, requestHeaders: {
+					Authorization: function () {
+						return '12345';
+					}
+				}
+			});
+
+			$.ajax({ url: "/my/page" });
+
+			expect(request.requestHeaders.Authorization).toBe('12345');
+			fakeXhr.restore();
+		});
+
+
+		it('does not set the header if the header\'s value is undefined', function () {
+			var fakeXhr = sinon.useFakeXMLHttpRequest()
+			, request;
+
+			fakeXhr.onCreate = function (xhr) {
+				request = xhr;
+			};
+
+			$.ajaxHandler.install({
+				isAjaxHandlerEnabled: true
+				, requestHeaders: {
+					// Note the function returns "undefined" and thus should not be set as a header value
+					Authorization: function () {}
+				}
+			});
+
+			$.ajax({ url: "/my/page" });
+
+			expect(request.requestHeaders.Authorization).not.toBeDefined();
+			fakeXhr.restore();
+		});
+	});
 });
