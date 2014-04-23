@@ -153,7 +153,7 @@ describe('jquery.ajaxHandler', function () {
 				}
 			});
 
-			$.ajax({ url: "/my/page" });
+			$.ajax({ url: '/my/page'});
 
 			expect(request.requestHeaders.Authorization).toBe('12345');
 			fakeXhr.restore();
@@ -176,7 +176,7 @@ describe('jquery.ajaxHandler', function () {
 				}
 			});
 
-			$.ajax({ url: "/my/page" });
+			$.ajax({ url: '/my/page'});
 
 			expect(request.requestHeaders.Authorization).not.toBeDefined();
 			fakeXhr.restore();
